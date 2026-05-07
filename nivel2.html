@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>QuizStation — Nivel 2</title>
+  <title>QuizStation — Nivel 1</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -15,7 +15,7 @@
     }
     body { background:var(--bg); color:var(--text); font-family:var(--font); min-height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; overflow-x:hidden; }
     body::before { content:''; position:fixed; inset:0; background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px); background-size:40px 40px; pointer-events:none; z-index:0; }
-    .screen { position:relative; z-index:1; width:100%; max-width:480px; display:none; flex-direction:column; gap:16px; animation:fadeUp 0.45s ease both; }
+    .screen { position:relative; z-index:1; width:100%; max-width:520px; display:none; flex-direction:column; gap:16px; animation:fadeUp 0.45s ease both; }
     .screen.active { display:flex; }
     @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
     .header { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); }
@@ -26,16 +26,12 @@
     .welcome-icon { font-size:48px; line-height:1; }
     .welcome-title { font-size:24px; font-weight:600; }
     .welcome-sub { font-size:14px; color:var(--muted); line-height:1.5; }
-    .diff-row { display:flex; align-items:center; justify-content:center; gap:6px; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; }
-    .dp { width:6px; height:6px; border-radius:50%; }
-    .dp.on { background:var(--accent); box-shadow:0 0 4px var(--accent); }
-    .dp.off { background:var(--border); }
     .input-group { display:flex; flex-direction:column; gap:8px; text-align:left; }
     .input-label { font-size:11px; font-weight:500; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; }
     .name-input { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); padding:14px 18px; color:var(--text); font-family:var(--font); font-size:16px; outline:none; transition:border-color .2s; }
     .name-input:focus { border-color:var(--accent); }
     .name-input::placeholder { color:var(--muted); }
-    .btn-start { width:100%; background:var(--accent); color:#000; border:none; border-radius:var(--radius); padding:15px; font-family:var(--font); font-size:15px; font-weight:600; cursor:pointer; transition:all .2s; letter-spacing:.02em; }
+    .btn-start { width:100%; background:var(--accent); color:#000; border:none; border-radius:var(--radius); padding:15px; font-family:var(--font); font-size:15px; font-weight:600; cursor:pointer; transition:all .2s; }
     .btn-start:hover { transform:scale(1.02); box-shadow:0 0 20px rgba(90,186,255,.25); }
     .btn-start:disabled { opacity:.4; cursor:not-allowed; transform:none; box-shadow:none; }
     .btn-ranking-link { background:none; border:1px solid var(--border); border-radius:var(--radius); padding:12px; color:var(--muted); font-family:var(--font); font-size:13px; cursor:pointer; transition:all .2s; }
@@ -57,19 +53,16 @@
     .dot.current { background:var(--accent2); box-shadow:0 0 6px var(--accent2); }
     .question-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:28px 24px; text-align:center; }
     .question-counter { font-size:11px; font-weight:500; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; margin-bottom:12px; }
-    .question-text { font-size:clamp(18px,5vw,26px); font-weight:400; line-height:1.3; }
+    .question-text { font-size:clamp(14px,4vw,18px); font-weight:400; line-height:1.5; }
+    .vf-badge { display:inline-block; margin-bottom:12px; font-size:10px; font-family:var(--mono); padding:3px 10px; border-radius:100px; border:1px solid var(--border); color:var(--muted); letter-spacing:.1em; }
     .options { display:flex; flex-direction:column; gap:10px; }
-    .option-btn { width:100%; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 20px; color:var(--text); font-family:var(--font); font-size:15px; cursor:pointer; text-align:left; display:flex; align-items:center; gap:14px; transition:all .18s ease; position:relative; overflow:hidden; }
+    .option-btn { width:100%; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px 20px; color:var(--text); font-family:var(--font); font-size:16px; font-weight:600; cursor:pointer; text-align:center; transition:all .18s ease; position:relative; overflow:hidden; letter-spacing:.05em; }
     .option-btn::before { content:''; position:absolute; inset:0; background:var(--accent); opacity:0; transition:opacity .18s; }
-    .option-btn:hover:not(:disabled) { border-color:var(--accent); transform:translateX(4px); }
+    .option-btn:hover:not(:disabled) { border-color:var(--accent); transform:scale(1.02); }
     .option-btn:hover:not(:disabled)::before { opacity:.04; }
-    .option-btn:active:not(:disabled) { transform:scale(.98); }
-    .opt-letter { font-family:var(--mono); font-size:11px; color:var(--muted); min-width:20px; position:relative; z-index:1; }
-    .opt-text { position:relative; z-index:1; }
-    .option-btn.correct { border-color:var(--success); background:rgba(90,255,140,.06); }
-    .option-btn.correct .opt-letter { color:var(--success); }
-    .option-btn.wrong { border-color:var(--danger); background:rgba(255,90,90,.06); }
-    .option-btn.wrong .opt-letter { color:var(--danger); }
+    .option-btn:active:not(:disabled) { transform:scale(.97); }
+    .option-btn.correct { border-color:var(--success); background:rgba(90,255,140,.08); color:var(--success); }
+    .option-btn.wrong { border-color:var(--danger); background:rgba(255,90,90,.08); color:var(--danger); }
     .end-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:32px 24px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:12px; }
     .end-icon { font-size:56px; line-height:1; }
     .end-player { font-size:14px; color:var(--muted); }
@@ -88,11 +81,11 @@
     .btn-back { background:none; border:1px solid var(--border); border-radius:100px; padding:6px 14px; color:var(--muted); font-family:var(--font); font-size:12px; cursor:pointer; transition:all .2s; }
     .btn-back:hover { border-color:var(--text); color:var(--text); }
     .ranking-list { display:flex; flex-direction:column; gap:8px; max-height:60vh; overflow-y:auto; }
-    .rank-row { display:flex; align-items:center; gap:14px; padding:14px 18px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); transition:border-color .2s; }
+    .rank-row { display:flex; align-items:center; gap:14px; padding:14px 18px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); }
     .rank-row.me { border-color:var(--accent); background:rgba(90,186,255,.03); }
     .rank-pos { font-family:var(--mono); font-size:13px; color:var(--muted); min-width:28px; text-align:center; }
     .rank-pos.gold{color:#ffd700;font-weight:600} .rank-pos.silver{color:#c0c0c0;font-weight:600} .rank-pos.bronze{color:#cd7f32;font-weight:600}
-    .rank-name { flex:1; font-size:15px; font-weight:400; }
+    .rank-name { flex:1; font-size:15px; }
     .rank-name.me { color:var(--accent); font-weight:500; }
     .rank-score { font-family:var(--mono); font-size:14px; color:var(--muted); }
     .rank-score.me { color:var(--accent); }
@@ -100,6 +93,11 @@
     .feedback { position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--surface2); border:1px solid var(--border); border-radius:100px; padding:10px 22px; font-size:14px; font-weight:500; opacity:0; transition:all .3s ease; pointer-events:none; white-space:nowrap; z-index:100; }
     .feedback.show { opacity:1; transform:translateX(-50%) translateY(0); }
     .feedback.ok{border-color:var(--success);color:var(--success)} .feedback.bad{border-color:var(--danger);color:var(--danger)}
+
+    .end-nota { font-family:var(--mono); font-size:48px; font-weight:600; color:var(--accent); line-height:1; }
+    .end-nota-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; }
+    .nota-bar-wrap { width:100%; background:var(--surface2); border-radius:100px; height:10px; overflow:hidden; border:1px solid var(--border); }
+    .nota-bar { height:100%; border-radius:100px; background:var(--accent); transition:width 1s ease; }
   </style>
 </head>
 <body>
@@ -107,14 +105,13 @@
 <div class="screen active" id="screen-login">
   <div class="header"><div class="brand"><div class="brand-dot"></div>QuizStation</div><div class="level-badge">NIVEL 02</div></div>
   <div class="welcome-card">
-    <div class="welcome-icon">⚡</div>
-    <div><div class="welcome-title">Nivel 2</div><div class="welcome-sub" style="margin-top:6px">Más difícil — solo 12 segundos por pregunta</div></div>
-    <div class="diff-row">Dificultad <div class="dp on"></div><div class="dp on"></div><div class="dp off"></div></div>
+    <div class="welcome-icon">📋</div>
+    <div><div class="welcome-title">Nivel 2</div><div class="welcome-sub" style="margin-top:6px">Medición de Pobreza — CONPES 150<br>Responde Verdadero o Falso</div></div>
     <div class="input-group">
       <label class="input-label" for="nombre-input">Tu nombre</label>
-      <input class="name-input" id="nombre-input" type="text" placeholder="Ej: Juan Pérez" maxlength="20" autocomplete="off"/>
+      <input class="name-input" id="nombre-input" type="text" placeholder="Ej: María García" maxlength="20" autocomplete="off"/>
     </div>
-    <button class="btn-start" id="btn-start" onclick="empezarJuego()" disabled>Empezar juego →</button>
+    <button class="btn-start" id="btn-start" onclick="empezarJuego()" disabled>Empezar →</button>
     <button class="btn-ranking-link" onclick="mostrarRanking('login')">Ver ranking 🏆</button>
   </div>
 </div>
@@ -124,13 +121,14 @@
   <div class="player-tag">Jugando: <strong id="player-name-tag">—</strong></div>
   <div class="stats">
     <div class="stat-card"><span class="stat-label">Puntos</span><span class="stat-value" id="puntos-display">0</span></div>
-    <div class="stat-card" id="stat-tiempo"><span class="stat-label">Tiempo</span><span class="stat-value" id="tiempo-display">12</span></div>
+    <div class="stat-card" id="stat-tiempo"><span class="stat-label">Tiempo</span><span class="stat-value" id="tiempo-display">20</span></div>
   </div>
   <div class="timer-bar-wrap"><div class="timer-bar" id="timer-bar"></div></div>
   <div class="progress-dots" id="progress-dots"></div>
   <div class="question-card">
+    <div class="vf-badge">VERDADERO / FALSO</div>
     <div class="question-counter" id="q-counter">Pregunta 1 de 10</div>
-    <div class="question-text" id="pregunta-text">Cargando...</div>
+    <div class="question-text" id="pregunta-text"></div>
   </div>
   <div class="options" id="opciones"></div>
 </div>
@@ -143,9 +141,12 @@
     <div class="end-score" id="end-score">0</div>
     <div class="end-label">puntos obtenidos</div>
     <div class="end-position" id="end-position"># en el ranking</div>
+    <div class=end-nota-label>Nota obtenida</div>
+    <div class=end-nota id=end-nota>0.0</div>
+    <div class=nota-bar-wrap><div class=nota-bar id=nota-bar style=width:0%></div></div>
   </div>
   <div class="end-actions">
-    <button class="btn-primary" onclick="mostrarRanking('end')">Ver ranking completo 🏆</button>
+    <button class="btn-primary" onclick="mostrarRanking('end')">Ver ranking 🏆</button>
     <button class="btn-secondary" onclick="volverLogin()">Jugar de nuevo</button>
   </div>
 </div>
@@ -162,23 +163,30 @@
 <div class="feedback" id="feedback"></div>
 
 <script>
-const TIEMPO_MAX=12, TOTAL_PREGUNTAS=10, LETRAS=['A','B','C'];
-const STORAGE_KEY='quizstation_nivel2_ranking';
+const TIEMPO_MAX=18, TOTAL_PREGUNTAS=10, STORAGE_KEY='quizstation_nivel2_ranking';
 let nombreJugador='', preguntas, actual, puntos, tiempo, intervalo, pantallaAnterior='login';
 
 const bancoPreguntas=[
-  {pregunta:"¿Símbolo químico del oro?",               opciones:["Ag","Au","Fe"],                            correcta:1},
-  {pregunta:"¿Quién escribió 'Cien años de soledad'?", opciones:["Vargas Llosa","García Márquez","Cortázar"],correcta:1},
-  {pregunta:"¿Cuántos planetas tiene el sistema solar?",opciones:["7","8","9"],                              correcta:1},
-  {pregunta:"¿Velocidad aproximada de la luz?",         opciones:["200.000 km/s","300.000 km/s","400.000 km/s"],correcta:1},
-  {pregunta:"¿En qué continente está Egipto?",          opciones:["Asia","África","Europa"],                 correcta:1},
-  {pregunta:"¿Montaña más alta del mundo?",             opciones:["K2","Aconcagua","Everest"],               correcta:2},
-  {pregunta:"¿Capital de Australia?",                   opciones:["Sídney","Melbourne","Canberra"],          correcta:2},
-  {pregunta:"¿Cuántos cromosomas tiene el ser humano?", opciones:["44","46","48"],                           correcta:1},
-  {pregunta:"¿Quién pintó la Mona Lisa?",               opciones:["Miguel Ángel","Da Vinci","Rafael"],       correcta:1},
-  {pregunta:"¿País con más biodiversidad del mundo?",   opciones:["Brasil","Colombia","Indonesia"],          correcta:1},
-  {pregunta:"¿Qué gas exhalan las plantas de noche?",   opciones:["Oxígeno","CO2","Nitrógeno"],              correcta:1},
-  {pregunta:"¿Cuántos husos horarios tiene Rusia?",     opciones:["9","11","13"],                            correcta:1},
+  {p:"El IPM-Colombia utiliza la metodología de Alkire y Foster desarrollada por la iniciativa OPHI.",r:"V"},
+  {p:"El IPM nacional se compone de 10 dimensiones con igual ponderación.",r:"F"},
+  {p:"Un hogar se considera pobre multidimensional si tiene privaciones en al menos el 33% de sus variables.",r:"V"},
+  {p:"La MESEP se creó para asegurar la comparabilidad de las series de pobreza tras el cambio de la ECH a la GEIH.",r:"V"},
+  {p:"A partir de 2012, el DNP es el único encargado de calcular y oficializar las cifras de pobreza monetaria.",r:"F"},
+  {p:"La línea de pobreza extrema (LI) representa el costo de una canasta básica de alimentos que cumpla requerimientos nutricionales.",r:"V"},
+  {p:"El Coeficiente de Orshansky para la zona urbana de Colombia se fijó en 2.4 en el CONPES 150.",r:"V"},
+  {p:"La técnica Hot Deck se emplea para imputar ingresos faltantes en las encuestas de hogares y corregir sesgos.",r:"V"},
+  {p:"Un hogar está privado en 'bajo logro educativo' si el promedio de escolaridad de los mayores de 15 años es inferior a 9 años.",r:"V"},
+  {p:"El indicador de analfabetismo del IPM considera privado al hogar solo si el jefe de familia no sabe leer ni escribir.",r:"F"},
+  {p:"El IPM-Colombia incluye una dimensión específica para las condiciones de la niñez y la juventud.",r:"V"},
+  {p:"El Coeficiente de Orshansky es el mismo (2.4) tanto para el área urbana como para el área rural del país.",r:"F"},
+  {p:"El IPM municipal se calcula utilizando datos del Censo de Población en lugar de encuestas de hogares continuas.",r:"V"},
+  {p:"Para el cálculo de pobreza por ingresos, se eliminan las declaraciones de ingresos con monto cero para evitar sesgos.",r:"V"},
+  {p:"El componente de ingresos 'en especie' no se contabiliza para la medición de la pobreza monetaria en Colombia.",r:"F"},
+  {p:"Los comités de expertos que validan las cifras de pobreza deben ser independientes y plurales.",r:"V"},
+  {p:"La línea de pobreza (LP) se obtiene multiplicando la LI por el coeficiente de Orshansky.",r:"V"},
+  {p:"El indicador de acceso a servicios de salud no forma parte de las variables del IPM-Colombia.",r:"F"},
+  {p:"El CONPES 150 oficializó al DANE como coordinador del arreglo institucional para la medición de pobreza.",r:"V"},
+  {p:"El IPM es un instrumento de seguimiento porque sus variables son susceptibles de ser modificadas por la política pública.",r:"V"},
 ];
 
 function leerRanking(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||[];}catch{return[];}}
@@ -193,13 +201,40 @@ function shuffle(arr){return[...arr].sort(()=>Math.random()-.5);}
 function iniciarJuego(){preguntas=shuffle(bancoPreguntas).slice(0,TOTAL_PREGUNTAS);actual=0;puntos=0;renderDots();cargarPregunta();}
 function renderDots(){const cont=document.getElementById('progress-dots');cont.innerHTML='';preguntas.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' current':'');d.id='dot-'+i;cont.appendChild(d);});}
 function updateDots(){preguntas.forEach((_,i)=>{const d=document.getElementById('dot-'+i);d.className=i<actual?'dot done':i===actual?'dot current':'dot';});}
-function cargarPregunta(){clearInterval(intervalo);tiempo=TIEMPO_MAX;updateUI();updateDots();const q=preguntas[actual];document.getElementById('q-counter').textContent=`Pregunta ${actual+1} de ${TOTAL_PREGUNTAS}`;document.getElementById('pregunta-text').textContent=q.pregunta;const cont=document.getElementById('opciones');cont.innerHTML='';q.opciones.forEach((op,i)=>{const btn=document.createElement('button');btn.className='option-btn';btn.innerHTML=`<span class="opt-letter">${LETRAS[i]}</span><span class="opt-text">${op}</span>`;btn.onclick=()=>responder(i);cont.appendChild(btn);});iniciarTiempo();}
-function updateUI(){document.getElementById('puntos-display').textContent=puntos;document.getElementById('tiempo-display').textContent=tiempo;const pct=(tiempo/TIEMPO_MAX)*100;const bar=document.getElementById('timer-bar');bar.style.width=pct+'%';const warn=tiempo<=4;bar.classList.toggle('warning',warn);document.getElementById('stat-tiempo').classList.toggle('warning',warn);}
-function iniciarTiempo(){intervalo=setInterval(()=>{tiempo--;updateUI();if(tiempo<=0){clearInterval(intervalo);mostrarFeedback('⏱ Tiempo agotado','bad');deshabilitarOpciones();setTimeout(siguiente,1200);}},1000);}
-function responder(idx){clearInterval(intervalo);const q=preguntas[actual];const btns=document.querySelectorAll('.option-btn');btns[q.correcta].classList.add('correct');if(idx===q.correcta){const bonus=Math.ceil(tiempo/TIEMPO_MAX*10);puntos+=10+bonus;mostrarFeedback(`✓ Correcto +${10+bonus}`,'ok');}else{btns[idx].classList.add('wrong');mostrarFeedback('✗ Incorrecto','bad');}deshabilitarOpciones();updateUI();setTimeout(siguiente,1200);}
+function cargarPregunta(){
+  clearInterval(intervalo);tiempo=TIEMPO_MAX;updateUI();updateDots();
+  const q=preguntas[actual];
+  document.getElementById('q-counter').textContent=`Pregunta ${actual+1} de ${TOTAL_PREGUNTAS}`;
+  document.getElementById('pregunta-text').textContent=q.p;
+  const cont=document.getElementById('opciones');cont.innerHTML='';
+  ['Verdadero','Falso'].forEach(op=>{
+    const btn=document.createElement('button');btn.className='option-btn';
+    btn.textContent=op==='Verdadero'?'✓  Verdadero':'✗  Falso';
+    btn.onclick=()=>responder(op==='Verdadero'?'V':'F');cont.appendChild(btn);
+  });
+  iniciarTiempo();
+}
+function updateUI(){document.getElementById('puntos-display').textContent=puntos;document.getElementById('tiempo-display').textContent=tiempo;const pct=(tiempo/TIEMPO_MAX)*100;const bar=document.getElementById('timer-bar');bar.style.width=pct+'%';const warn=tiempo<=6;bar.classList.toggle('warning',warn);document.getElementById('stat-tiempo').classList.toggle('warning',warn);}
+function iniciarTiempo(){intervalo=setInterval(()=>{tiempo--;updateUI();if(tiempo<=0){clearInterval(intervalo);mostrarFeedback('⏱ Tiempo agotado','bad');deshabilitarOpciones();setTimeout(siguiente,1400);}},1000);}
+function responder(resp){
+  clearInterval(intervalo);
+  const q=preguntas[actual];const btns=document.querySelectorAll('.option-btn');
+  btns.forEach(b=>{if(b.textContent.includes('Verdadero')&&q.r==='V')b.classList.add('correct');else if(b.textContent.includes('Falso')&&q.r==='F')b.classList.add('correct');else if((b.textContent.includes('Verdadero')&&resp==='V'&&q.r!=='V')||(b.textContent.includes('Falso')&&resp==='F'&&q.r!=='F'))b.classList.add('wrong');});
+  if(resp===q.r){const bonus=Math.ceil(tiempo/TIEMPO_MAX*10);puntos+=10+bonus;mostrarFeedback(`✓ Correcto +${10+bonus}`,'ok');}
+  else mostrarFeedback('✗ Incorrecto','bad');
+  deshabilitarOpciones();updateUI();setTimeout(siguiente,1400);
+}
 function deshabilitarOpciones(){document.querySelectorAll('.option-btn').forEach(b=>b.disabled=true);}
 function siguiente(){actual++;if(actual>=TOTAL_PREGUNTAS)terminar();else cargarPregunta();}
-function terminar(){clearInterval(intervalo);guardarEnRanking(nombreJugador,puntos);const pos=obtenerPosicion(nombreJugador,puntos);const pct=puntos/(TOTAL_PREGUNTAS*20)*100;document.getElementById('end-name').textContent=nombreJugador;document.getElementById('end-score').textContent=puntos;document.getElementById('end-icon').textContent=pct>=80?'🏆':pct>=50?'🎯':'💪';const medals=['🥇','🥈','🥉'];document.getElementById('end-position').textContent=pos<=3?`${medals[pos-1]} Posición #${pos}`:`Posición #${pos} en el ranking`;mostrarPantalla('screen-end');}
+
+function calcularNota(puntos){
+  if(puntos>=160) return 5.0;
+  if(puntos>=120) return 4.0;
+  if(puntos>=80)  return 3.0;
+  if(puntos>=40)  return 2.0;
+  return 1.0;
+}
+function terminar(){clearInterval(intervalo);guardarEnRanking(nombreJugador,puntos);const pos=obtenerPosicion(nombreJugador,puntos);const pct=puntos/(TOTAL_PREGUNTAS*20)*100;document.getElementById('end-name').textContent=nombreJugador;document.getElementById('end-score').textContent=puntos;document.getElementById('end-icon').textContent=pct>=80?'🏆':pct>=50?'🎯':'💪';const medals=['🥇','🥈','🥉'];document.getElementById('end-position').textContent=pos<=3?`${medals[pos-1]} Posición #${pos}`:`Posición #${pos} en el ranking`;const nota=calcularNota(puntos);document.getElementById('end-nota').textContent=nota.toFixed(1);document.getElementById('nota-bar').style.width=((nota/5)*100)+'%';mostrarPantalla('screen-end');}
 function mostrarRanking(desde){pantallaAnterior=desde==='end'?'screen-end':'screen-login';renderRanking();mostrarPantalla('screen-ranking');}
 function volverDesdeRanking(){mostrarPantalla(pantallaAnterior);}
 function renderRanking(){const lista=leerRanking();const cont=document.getElementById('ranking-list');document.getElementById('ranking-sub').textContent=lista.length>0?`${lista.length} jugador${lista.length!==1?'es':''}`:'Aún no hay jugadores';if(!lista.length){cont.innerHTML='<div class="ranking-empty">Sé el primero en jugar 🎮</div>';return;}const medals=['🥇','🥈','🥉'],posCls=['gold','silver','bronze'];cont.innerHTML=lista.slice(0,20).map((entry,i)=>{const esYo=entry.nombre===nombreJugador&&entry.puntaje===puntos;return`<div class="rank-row ${esYo?'me':''}"><div class="rank-pos ${i<3?posCls[i]:''}">${i<3?medals[i]:'#'+(i+1)}</div><div class="rank-name ${esYo?'me':''}">${entry.nombre}${esYo?' ← tú':''}</div><div class="rank-score ${esYo?'me':''}">${entry.puntaje} pts</div></div>`;}).join('');}
