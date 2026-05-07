@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QuizStation — Nivel 3</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d0d0d; --surface: #161616; --surface2: #1e1e1e; --border: #2a2a2a;
+      --text: #f0f0f0; --muted: #666; --accent: #ff8c5a; --accent2: #ffd75a;
+      --danger: #ff5a5a; --success: #5aff8c; --radius: 14px;
+      --font: 'DM Sans', sans-serif; --mono: 'DM Mono', monospace;
+    }
+    body { background:var(--bg); color:var(--text); font-family:var(--font); min-height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; overflow-x:hidden; }
+    body::before { content:''; position:fixed; inset:0; background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px); background-size:40px 40px; pointer-events:none; z-index:0; }
+    .screen { position:relative; z-index:1; width:100%; max-width:480px; display:none; flex-direction:column; gap:16px; animation:fadeUp 0.45s ease both; }
+    .screen.active { display:flex; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes pulse { 0%,100%{box-shadow:0 0 8px var(--accent)} 50%{box-shadow:0 0 16px var(--accent)} }
+    .header { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); }
+    .brand { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:500; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; }
+    .brand-dot { width:7px; height:7px; border-radius:50%; background:var(--accent); animation:pulse 2s infinite; }
+    .level-badge { font-family:var(--mono); font-size:11px; padding:4px 10px; border-radius:100px; border:1px solid var(--border); color:var(--accent); letter-spacing:.1em; }
+    .welcome-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:32px 24px; text-align:center; display:flex; flex-direction:column; gap:20px; }
+    .welcome-icon { font-size:48px; line-height:1; }
+    .welcome-title { font-size:24px; font-weight:600; }
+    .welcome-sub { font-size:14px; color:var(--muted); line-height:1.5; }
+    .diff-row { display:flex; align-items:center; justify-content:center; gap:6px; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; }
+    .dp { width:6px; height:6px; border-radius:50%; }
+    .dp.on { background:var(--accent); box-shadow:0 0 4px var(--accent); }
+    .dp.off { background:var(--border); }
+    .input-group { display:flex; flex-direction:column; gap:8px; text-align:left; }
+    .input-label { font-size:11px; font-weight:500; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; }
+    .name-input { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); padding:14px 18px; color:var(--text); font-family:var(--font); font-size:16px; outline:none; transition:border-color .2s; }
+    .name-input:focus { border-color:var(--accent); }
+    .name-input::placeholder { color:var(--muted); }
+    .btn-start { width:100%; background:var(--accent); color:#000; border:none; border-radius:var(--radius); padding:15px; font-family:var(--font); font-size:15px; font-weight:600; cursor:pointer; transition:all .2s; }
+    .btn-start:hover { transform:scale(1.02); box-shadow:0 0 20px rgba(255,140,90,.25); }
+    .btn-start:disabled { opacity:.4; cursor:not-allowed; transform:none; box-shadow:none; }
+    .btn-ranking-link { background:none; border:1px solid var(--border); border-radius:var(--radius); padding:12px; color:var(--muted); font-family:var(--font); font-size:13px; cursor:pointer; transition:all .2s; }
+    .btn-ranking-link:hover { border-color:var(--accent2); color:var(--accent2); }
+    .stats { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 18px; display:flex; flex-direction:column; gap:4px; }
+    .stat-label { font-size:11px; font-weight:500; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; }
+    .stat-value { font-family:var(--mono); font-size:26px; font-weight:500; color:var(--text); line-height:1; }
+    #stat-tiempo .stat-value { color:var(--accent); transition:color .3s; }
+    #stat-tiempo.warning .stat-value { color:var(--danger); }
+    .player-tag { display:flex; align-items:center; gap:8px; padding:10px 16px; background:var(--surface); border:1px solid var(--border); border-radius:100px; font-size:13px; color:var(--muted); align-self:center; }
+    .player-tag strong { color:var(--accent); font-weight:500; }
+    .timer-bar-wrap { background:var(--surface); border:1px solid var(--border); border-radius:100px; height:6px; overflow:hidden; }
+    .timer-bar { height:100%; width:100%; background:var(--accent); border-radius:100px; transition:width 1s linear,background .3s; }
+    .timer-bar.warning { background:var(--danger); }
+    .progress-dots { display:flex; gap:6px; justify-content:center; flex-wrap:wrap; }
+    .dot { width:8px; height:8px; border-radius:50%; background:var(--border); transition:background .3s; }
+    .dot.done { background:var(--accent); }
+    .dot.current { background:var(--accent2); box-shadow:0 0 6px var(--accent2); }
+    .question-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:28px 24px; text-align:center; }
+    .question-counter { font-size:11px; font-weight:500; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; margin-bottom:12px; }
+    .question-text { font-size:clamp(17px,5vw,25px); font-weight:400; line-height:1.35; }
+    .options { display:flex; flex-direction:column; gap:10px; }
+    .option-btn { width:100%; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 20px; color:var(--text); font-family:var(--font); font-size:15px; cursor:pointer; text-align:left; display:flex; align-items:center; gap:14px; transition:all .18s ease; position:relative; overflow:hidden; }
+    .option-btn::before { content:''; position:absolute; inset:0; background:var(--accent); opacity:0; transition:opacity .18s; }
+    .option-btn:hover:not(:disabled) { border-color:var(--accent); transform:translateX(4px); }
+    .option-btn:hover:not(:disabled)::before { opacity:.04; }
+    .option-btn:active:not(:disabled) { transform:scale(.98); }
+    .opt-letter { font-family:var(--mono); font-size:11px; color:var(--muted); min-width:20px; position:relative; z-index:1; }
+    .opt-text { position:relative; z-index:1; }
+    .option-btn.correct { border-color:var(--success); background:rgba(90,255,140,.06); }
+    .option-btn.correct .opt-letter { color:var(--success); }
+    .option-btn.wrong { border-color:var(--danger); background:rgba(255,90,90,.06); }
+    .option-btn.wrong .opt-letter { color:var(--danger); }
+    .end-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:32px 24px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:12px; }
+    .end-icon { font-size:56px; line-height:1; }
+    .end-player { font-size:14px; color:var(--muted); }
+    .end-player span { color:var(--accent); font-weight:600; }
+    .end-score { font-family:var(--mono); font-size:64px; font-weight:500; color:var(--accent); line-height:1; }
+    .end-label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; }
+    .end-position { margin-top:4px; padding:8px 20px; border-radius:100px; border:1px solid var(--border); font-family:var(--mono); font-size:13px; color:var(--accent2); }
+    .end-actions { display:flex; flex-direction:column; gap:10px; width:100%; }
+    .btn-primary { background:var(--accent); color:#000; border:none; border-radius:var(--radius); padding:14px; font-family:var(--font); font-size:15px; font-weight:600; cursor:pointer; transition:all .2s; }
+    .btn-primary:hover { transform:scale(1.02); box-shadow:0 0 20px rgba(255,140,90,.25); }
+    .btn-secondary { background:none; border:1px solid var(--border); border-radius:var(--radius); padding:13px; color:var(--text); font-family:var(--font); font-size:14px; cursor:pointer; transition:all .2s; }
+    .btn-secondary:hover { border-color:var(--accent2); color:var(--accent2); }
+    .ranking-header { display:flex; align-items:center; justify-content:space-between; }
+    .ranking-title { font-size:20px; font-weight:600; }
+    .ranking-sub { font-size:12px; color:var(--muted); }
+    .btn-back { background:none; border:1px solid var(--border); border-radius:100px; padding:6px 14px; color:var(--muted); font-family:var(--font); font-size:12px; cursor:pointer; transition:all .2s; }
+    .btn-back:hover { border-color:var(--text); color:var(--text); }
+    .ranking-list { display:flex; flex-direction:column; gap:8px; max-height:60vh; overflow-y:auto; }
+    .rank-row { display:flex; align-items:center; gap:14px; padding:14px 18px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); }
+    .rank-row.me { border-color:var(--accent); background:rgba(255,140,90,.03); }
+    .rank-pos { font-family:var(--mono); font-size:13px; color:var(--muted); min-width:28px; text-align:center; }
+    .rank-pos.gold{color:#ffd700;font-weight:600} .rank-pos.silver{color:#c0c0c0;font-weight:600} .rank-pos.bronze{color:#cd7f32;font-weight:600}
+    .rank-name { flex:1; font-size:15px; }
+    .rank-name.me { color:var(--accent); font-weight:500; }
+    .rank-score { font-family:var(--mono); font-size:14px; color:var(--muted); }
+    .rank-score.me { color:var(--accent); }
+    .ranking-empty { text-align:center; padding:40px 20px; color:var(--muted); font-size:14px; }
+    .feedback { position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--surface2); border:1px solid var(--border); border-radius:100px; padding:10px 22px; font-size:14px; font-weight:500; opacity:0; transition:all .3s ease; pointer-events:none; white-space:nowrap; z-index:100; }
+    .feedback.show { opacity:1; transform:translateX(-50%) translateY(0); }
+    .feedback.ok{border-color:var(--success);color:var(--success)} .feedback.bad{border-color:var(--danger);color:var(--danger)}
+  </style>
+</head>
+<body>
+
+<div class="screen active" id="screen-login">
+  <div class="header"><div class="brand"><div class="brand-dot"></div>QuizStation</div><div class="level-badge">NIVEL 03</div></div>
+  <div class="welcome-card">
+    <div class="welcome-icon">🔥</div>
+    <div><div class="welcome-title">Nivel 3</div><div class="welcome-sub" style="margin-top:6px">Nivel difícil — solo 10 segundos por pregunta</div></div>
+    <div class="diff-row">Dificultad <div class="dp on"></div><div class="dp on"></div><div class="dp on"></div></div>
+    <div class="input-group">
+      <label class="input-label" for="nombre-input">Tu nombre</label>
+      <input class="name-input" id="nombre-input" type="text" placeholder="Ej: Laura Torres" maxlength="20" autocomplete="off"/>
+    </div>
+    <button class="btn-start" id="btn-start" onclick="empezarJuego()" disabled>Empezar juego →</button>
+    <button class="btn-ranking-link" onclick="mostrarRanking('login')">Ver ranking 🏆</button>
+  </div>
+</div>
+
+<div class="screen" id="screen-game">
+  <div class="header"><div class="brand"><div class="brand-dot"></div>QuizStation</div><div class="level-badge">NIVEL 03</div></div>
+  <div class="player-tag">Jugando: <strong id="player-name-tag">—</strong></div>
+  <div class="stats">
+    <div class="stat-card"><span class="stat-label">Puntos</span><span class="stat-value" id="puntos-display">0</span></div>
+    <div class="stat-card" id="stat-tiempo"><span class="stat-label">Tiempo</span><span class="stat-value" id="tiempo-display">10</span></div>
+  </div>
+  <div class="timer-bar-wrap"><div class="timer-bar" id="timer-bar"></div></div>
+  <div class="progress-dots" id="progress-dots"></div>
+  <div class="question-card">
+    <div class="question-counter" id="q-counter">Pregunta 1 de 10</div>
+    <div class="question-text" id="pregunta-text">Cargando...</div>
+  </div>
+  <div class="options" id="opciones"></div>
+</div>
+
+<div class="screen" id="screen-end">
+  <div class="header"><div class="brand"><div class="brand-dot"></div>QuizStation</div><div class="level-badge">NIVEL 03</div></div>
+  <div class="end-card">
+    <div class="end-icon" id="end-icon">🎯</div>
+    <div class="end-player">Resultado de <span id="end-name">—</span></div>
+    <div class="end-score" id="end-score">0</div>
+    <div class="end-label">puntos obtenidos</div>
+    <div class="end-position" id="end-position"># en el ranking</div>
+  </div>
+  <div class="end-actions">
+    <button class="btn-primary" onclick="mostrarRanking('end')">Ver ranking completo 🏆</button>
+    <button class="btn-secondary" onclick="volverLogin()">Jugar de nuevo</button>
+  </div>
+</div>
+
+<div class="screen" id="screen-ranking">
+  <div class="header"><div class="brand"><div class="brand-dot"></div>QuizStation</div><div class="level-badge">NIVEL 03</div></div>
+  <div class="ranking-header">
+    <div><div class="ranking-title">🏆 Ranking</div><div class="ranking-sub" id="ranking-sub">Top jugadores</div></div>
+    <button class="btn-back" onclick="volverDesdeRanking()">← Volver</button>
+  </div>
+  <div class="ranking-list" id="ranking-list"><div class="ranking-empty">Aún no hay jugadores</div></div>
+</div>
+
+<div class="feedback" id="feedback"></div>
+
+<script>
+const TIEMPO_MAX=10, TOTAL_PREGUNTAS=10, LETRAS=['A','B','C'];
+const STORAGE_KEY='quizstation_nivel3_ranking';
+let nombreJugador='', preguntas, actual, puntos, tiempo, intervalo, pantallaAnterior='login';
+
+const bancoPreguntas=[
+  {pregunta:"¿Número atómico del carbono?",                    opciones:["4","6","8"],                        correcta:1},
+  {pregunta:"¿Año caída del Imperio Romano de Occidente?",     opciones:["410 d.C.","476 d.C.","527 d.C."],   correcta:1},
+  {pregunta:"¿Capital de Kazajistán?",                         opciones:["Almaty","Astana","Taskent"],         correcta:1},
+  {pregunta:"¿Quién escribió 'Crítica de la razón pura'?",     opciones:["Hegel","Kant","Nietzsche"],          correcta:1},
+  {pregunta:"¿Moneda de Japón?",                               opciones:["Yuan","Won","Yen"],                  correcta:2},
+  {pregunta:"¿Cuántos bits tiene un byte?",                    opciones:["4","8","16"],                        correcta:1},
+  {pregunta:"¿País con más lagos del mundo?",                  opciones:["Rusia","Canadá","Brasil"],           correcta:1},
+  {pregunta:"¿Hueso más largo del cuerpo humano?",             opciones:["Tibia","Fémur","Húmero"],            correcta:1},
+  {pregunta:"¿Año en que se fundó la ONU?",                    opciones:["1944","1945","1948"],                correcta:1},
+  {pregunta:"¿Gas más abundante en la atmósfera?",             opciones:["Oxígeno","CO2","Nitrógeno"],         correcta:2},
+  {pregunta:"¿Distancia de un maratón?",                       opciones:["40 km","42,195 km","44 km"],         correcta:1},
+  {pregunta:"¿País con mayor extensión territorial?",          opciones:["China","Rusia","EE.UU."],            correcta:1},
+];
+
+function leerRanking(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||[];}catch{return[];}}
+function guardarEnRanking(nombre,puntaje){const lista=leerRanking();lista.push({nombre,puntaje,fecha:Date.now()});lista.sort((a,b)=>b.puntaje-a.puntaje);const top=lista.slice(0,50);localStorage.setItem(STORAGE_KEY,JSON.stringify(top));return top.findIndex(e=>e.nombre===nombre&&e.puntaje===puntaje)+1||1;}
+function obtenerPosicion(nombre,puntaje){const lista=leerRanking();const idx=lista.findIndex(e=>e.nombre===nombre&&e.puntaje===puntaje);return idx>=0?idx+1:lista.filter(e=>e.puntaje>puntaje).length+1;}
+function mostrarPantalla(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));const el=document.getElementById(id);el.style.animation='none';el.offsetHeight;el.style.animation='';el.classList.add('active');}
+document.getElementById('nombre-input').addEventListener('input',function(){document.getElementById('btn-start').disabled=this.value.trim().length<2;});
+document.getElementById('nombre-input').addEventListener('keydown',function(e){if(e.key==='Enter'&&this.value.trim().length>=2)empezarJuego();});
+function empezarJuego(){nombreJugador=document.getElementById('nombre-input').value.trim();if(!nombreJugador||nombreJugador.length<2)return;document.getElementById('player-name-tag').textContent=nombreJugador;iniciarJuego();mostrarPantalla('screen-game');}
+function volverLogin(){document.getElementById('nombre-input').value='';document.getElementById('btn-start').disabled=true;mostrarPantalla('screen-login');}
+function shuffle(arr){return[...arr].sort(()=>Math.random()-.5);}
+function iniciarJuego(){preguntas=shuffle(bancoPreguntas).slice(0,TOTAL_PREGUNTAS);actual=0;puntos=0;renderDots();cargarPregunta();}
+function renderDots(){const cont=document.getElementById('progress-dots');cont.innerHTML='';preguntas.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' current':'');d.id='dot-'+i;cont.appendChild(d);});}
+function updateDots(){preguntas.forEach((_,i)=>{const d=document.getElementById('dot-'+i);d.className=i<actual?'dot done':i===actual?'dot current':'dot';});}
+function cargarPregunta(){clearInterval(intervalo);tiempo=TIEMPO_MAX;updateUI();updateDots();const q=preguntas[actual];document.getElementById('q-counter').textContent=`Pregunta ${actual+1} de ${TOTAL_PREGUNTAS}`;document.getElementById('pregunta-text').textContent=q.pregunta;const cont=document.getElementById('opciones');cont.innerHTML='';q.opciones.forEach((op,i)=>{const btn=document.createElement('button');btn.className='option-btn';btn.innerHTML=`<span class="opt-letter">${LETRAS[i]}</span><span class="opt-text">${op}</span>`;btn.onclick=()=>responder(i);cont.appendChild(btn);});iniciarTiempo();}
+function updateUI(){document.getElementById('puntos-display').textContent=puntos;document.getElementById('tiempo-display').textContent=tiempo;const pct=(tiempo/TIEMPO_MAX)*100;const bar=document.getElementById('timer-bar');bar.style.width=pct+'%';const warn=tiempo<=3;bar.classList.toggle('warning',warn);document.getElementById('stat-tiempo').classList.toggle('warning',warn);}
+function iniciarTiempo(){intervalo=setInterval(()=>{tiempo--;updateUI();if(tiempo<=0){clearInterval(intervalo);mostrarFeedback('⏱ Tiempo agotado','bad');deshabilitarOpciones();setTimeout(siguiente,1200);}},1000);}
+function responder(idx){clearInterval(intervalo);const q=preguntas[actual];const btns=document.querySelectorAll('.option-btn');btns[q.correcta].classList.add('correct');if(idx===q.correcta){const bonus=Math.ceil(tiempo/TIEMPO_MAX*15);puntos+=10+bonus;mostrarFeedback(`✓ Correcto +${10+bonus}`,'ok');}else{btns[idx].classList.add('wrong');mostrarFeedback('✗ Incorrecto','bad');}deshabilitarOpciones();updateUI();setTimeout(siguiente,1200);}
+function deshabilitarOpciones(){document.querySelectorAll('.option-btn').forEach(b=>b.disabled=true);}
+function siguiente(){actual++;if(actual>=TOTAL_PREGUNTAS)terminar();else cargarPregunta();}
+function terminar(){clearInterval(intervalo);guardarEnRanking(nombreJugador,puntos);const pos=obtenerPosicion(nombreJugador,puntos);const pct=puntos/(TOTAL_PREGUNTAS*25)*100;document.getElementById('end-name').textContent=nombreJugador;document.getElementById('end-score').textContent=puntos;document.getElementById('end-icon').textContent=pct>=80?'🏆':pct>=50?'🔥':'💪';const medals=['🥇','🥈','🥉'];document.getElementById('end-position').textContent=pos<=3?`${medals[pos-1]} Posición #${pos}`:`Posición #${pos} en el ranking`;mostrarPantalla('screen-end');}
+function mostrarRanking(desde){pantallaAnterior=desde==='end'?'screen-end':'screen-login';renderRanking();mostrarPantalla('screen-ranking');}
+function volverDesdeRanking(){mostrarPantalla(pantallaAnterior);}
+function renderRanking(){const lista=leerRanking();const cont=document.getElementById('ranking-list');document.getElementById('ranking-sub').textContent=lista.length>0?`${lista.length} jugador${lista.length!==1?'es':''}`:'Aún no hay jugadores';if(!lista.length){cont.innerHTML='<div class="ranking-empty">Sé el primero en jugar 🎮</div>';return;}const medals=['🥇','🥈','🥉'],posCls=['gold','silver','bronze'];cont.innerHTML=lista.slice(0,20).map((entry,i)=>{const esYo=entry.nombre===nombreJugador&&entry.puntaje===puntos;return`<div class="rank-row ${esYo?'me':''}"><div class="rank-pos ${i<3?posCls[i]:''}">${i<3?medals[i]:'#'+(i+1)}</div><div class="rank-name ${esYo?'me':''}">${entry.nombre}${esYo?' ← tú':''}</div><div class="rank-score ${esYo?'me':''}">${entry.puntaje} pts</div></div>`;}).join('');}
+function mostrarFeedback(msg,tipo){const el=document.getElementById('feedback');el.textContent=msg;el.className='feedback show '+tipo;setTimeout(()=>el.className='feedback',1500);}
+</script>
+</body>
+</html>
