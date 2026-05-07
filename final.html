@@ -3,117 +3,115 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>QuizStation — Final</title>
+  <title>QuizStation — Nivel 1</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--bg:#080808;--surface:#111;--surface2:#1a1a1a;--border:#222;--text:#f0f0f0;--muted:#555;--accent:#ffd700;--accent2:#ff6b35;--danger:#ff4444;--success:#4dff91;--radius:14px;--font:'DM Sans',sans-serif;--mono:'DM Mono',monospace}
-    body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow-x:hidden}
-    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
-    body::after{content:'';position:fixed;top:-200px;left:50%;transform:translateX(-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(255,215,0,.05) 0%,transparent 70%);pointer-events:none;z-index:0}
-    .screen{position:relative;z-index:1;width:100%;max-width:480px;display:none;flex-direction:column;gap:16px;animation:fadeUp .45s ease both}
-    .screen.active{display:flex}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes glow{0%,100%{box-shadow:0 0 8px var(--accent),0 0 16px var(--accent)}50%{box-shadow:0 0 20px var(--accent),0 0 36px var(--accent)}}
-    @keyframes cpulse{0%,100%{box-shadow:0 0 6px var(--accent2)}50%{box-shadow:0 0 14px var(--accent2)}}
-    .header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:linear-gradient(135deg,#111 0%,#1a1500 100%);border:1px solid #2a2200;border-radius:var(--radius)}
-    .brand{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
-    .brand-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);animation:glow 1.5s infinite}
-    .level-badge{font-family:var(--mono);font-size:11px;padding:4px 12px;border-radius:100px;border:1px solid rgba(255,215,0,.3);color:var(--accent);letter-spacing:.12em;background:rgba(255,215,0,.05)}
-    .final-banner{background:linear-gradient(135deg,#111 0%,#1a1500 100%);border:1px solid #2a2200;border-radius:var(--radius);padding:16px;text-align:center}
-    .final-title{font-size:20px;font-weight:600;color:var(--accent)}
-    .final-sub{font-size:12px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.1em}
-    .welcome-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px 24px;text-align:center;display:flex;flex-direction:column;gap:20px}
-    .welcome-icon{font-size:52px;line-height:1}
-    .welcome-title{font-size:24px;font-weight:600;color:var(--accent)}
-    .welcome-sub{font-size:14px;color:var(--muted);line-height:1.5}
-    .input-group{display:flex;flex-direction:column;gap:8px;text-align:left}
-    .input-label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
-    .name-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;color:var(--text);font-family:var(--font);font-size:16px;outline:none;transition:border-color .2s}
-    .name-input:focus{border-color:var(--accent)}
-    .name-input::placeholder{color:var(--muted)}
-    .btn-start{width:100%;background:var(--accent);color:#000;border:none;border-radius:var(--radius);padding:15px;font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer;transition:all .2s}
-    .btn-start:hover{transform:scale(1.02);box-shadow:0 0 24px rgba(255,215,0,.35)}
-    .btn-start:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
-    .btn-ranking-link{background:none;border:1px solid var(--border);border-radius:var(--radius);padding:12px;color:var(--muted);font-family:var(--font);font-size:13px;cursor:pointer;transition:all .2s}
-    .btn-ranking-link:hover{border-color:var(--accent2);color:var(--accent2)}
-    .player-tag{display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--surface);border:1px solid rgba(255,215,0,.2);border-radius:100px;font-size:13px;color:var(--muted);align-self:center}
-    .player-tag strong{color:var(--accent);font-weight:500}
-    .stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;display:flex;flex-direction:column;gap:4px}
-    .stat-label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
-    .stat-value{font-family:var(--mono);font-size:26px;font-weight:500;color:var(--text);line-height:1}
-    #stat-tiempo .stat-value{color:var(--accent);transition:color .3s}
-    #stat-tiempo.warning .stat-value{color:var(--danger)}
-    .timer-bar-wrap{background:var(--surface);border:1px solid var(--border);border-radius:100px;height:6px;overflow:hidden}
-    .timer-bar{height:100%;width:100%;background:var(--accent);border-radius:100px;transition:width 1s linear,background .3s}
-    .timer-bar.warning{background:var(--danger)}
-    .progress-dots{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
-    .dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:background .3s}
-    .dot.done{background:var(--accent)}
-    .dot.current{background:var(--accent2);animation:cpulse 1s infinite}
-    .question-card{background:linear-gradient(135deg,#111 0%,#130f00 100%);border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px;text-align:center}
-    .question-counter{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
-    .question-text{font-size:clamp(17px,5vw,25px);font-weight:400;line-height:1.35}
-    .options{display:flex;flex-direction:column;gap:10px}
-    .option-btn{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;color:var(--text);font-family:var(--font);font-size:15px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:14px;transition:all .18s ease;position:relative;overflow:hidden}
-    .option-btn::before{content:'';position:absolute;inset:0;background:var(--accent);opacity:0;transition:opacity .18s}
-    .option-btn:hover:not(:disabled){border-color:rgba(255,215,0,.4);transform:translateX(4px)}
-    .option-btn:hover:not(:disabled)::before{opacity:.04}
-    .option-btn:active:not(:disabled){transform:scale(.98)}
-    .opt-letter{font-family:var(--mono);font-size:11px;color:var(--muted);min-width:20px;position:relative;z-index:1}
-    .opt-text{position:relative;z-index:1}
-    .option-btn.correct{border-color:var(--success);background:rgba(77,255,145,.05)}
-    .option-btn.correct .opt-letter{color:var(--success)}
-    .option-btn.wrong{border-color:var(--danger);background:rgba(255,68,68,.05)}
-    .option-btn.wrong .opt-letter{color:var(--danger)}
-    .end-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px 24px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px}
-    .end-icon{font-size:64px;line-height:1;filter:drop-shadow(0 0 16px rgba(255,215,0,.4))}
-    .end-title{font-size:22px;font-weight:600;color:var(--accent)}
-    .end-player{font-size:14px;color:var(--muted)}
-    .end-player span{color:var(--accent);font-weight:600}
-    .end-score{font-family:var(--mono);font-size:68px;font-weight:500;color:var(--accent);line-height:1;text-shadow:0 0 30px rgba(255,215,0,.25)}
-    .end-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
-    .end-position{padding:8px 20px;border-radius:100px;border:1px solid var(--border);font-family:var(--mono);font-size:13px;color:var(--accent2)}
-    .end-rang{padding:10px 24px;border-radius:100px;border:1px solid rgba(255,215,0,.3);font-family:var(--mono);font-size:13px;color:var(--accent);background:rgba(255,215,0,.05);letter-spacing:.08em}
-    .end-actions{display:flex;flex-direction:column;gap:10px;width:100%}
-    .btn-primary{background:var(--accent);color:#000;border:none;border-radius:var(--radius);padding:14px;font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer;transition:all .2s}
-    .btn-primary:hover{transform:scale(1.02);box-shadow:0 0 24px rgba(255,215,0,.35)}
-    .btn-secondary{background:none;border:1px solid var(--border);border-radius:var(--radius);padding:13px;color:var(--text);font-family:var(--font);font-size:14px;cursor:pointer;transition:all .2s}
-    .btn-secondary:hover{border-color:var(--accent2);color:var(--accent2)}
-    .ranking-header{display:flex;align-items:center;justify-content:space-between}
-    .ranking-title{font-size:20px;font-weight:600}
-    .ranking-sub{font-size:12px;color:var(--muted)}
-    .btn-back{background:none;border:1px solid var(--border);border-radius:100px;padding:6px 14px;color:var(--muted);font-family:var(--font);font-size:12px;cursor:pointer;transition:all .2s}
-    .btn-back:hover{border-color:var(--text);color:var(--text)}
-    .ranking-list{display:flex;flex-direction:column;gap:8px;max-height:60vh;overflow-y:auto}
-    .rank-row{display:flex;align-items:center;gap:14px;padding:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)}
-    .rank-row.me{border-color:var(--accent);background:rgba(255,215,0,.03)}
-    .rank-pos{font-family:var(--mono);font-size:13px;color:var(--muted);min-width:28px;text-align:center}
-    .rank-pos.gold{color:#ffd700;font-weight:600}.rank-pos.silver{color:#c0c0c0;font-weight:600}.rank-pos.bronze{color:#cd7f32;font-weight:600}
-    .rank-name{flex:1;font-size:15px}
-    .rank-name.me{color:var(--accent);font-weight:500}
-    .rank-score{font-family:var(--mono);font-size:14px;color:var(--muted)}
-    .rank-score.me{color:var(--accent)}
-    .ranking-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px}
-    .feedback{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface2);border:1px solid var(--border);border-radius:100px;padding:10px 22px;font-size:14px;font-weight:500;opacity:0;transition:all .3s ease;pointer-events:none;white-space:nowrap;z-index:100}
-    .feedback.show{opacity:1;transform:translateX(-50%) translateY(0)}
-    .feedback.ok{border-color:var(--success);color:var(--success)}.feedback.bad{border-color:var(--danger);color:var(--danger)}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d0d0d; --surface: #161616; --surface2: #1e1e1e; --border: #2a2a2a;
+      --text: #f0f0f0; --muted: #666; --accent: #ffd700; --accent2: #ff6b35;
+      --danger: #ff5a5a; --success: #5aff8c; --radius: 14px;
+      --font: 'DM Sans', sans-serif; --mono: 'DM Mono', monospace;
+    }
+    body { background:var(--bg); color:var(--text); font-family:var(--font); min-height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; overflow-x:hidden; }
+    body::before { content:''; position:fixed; inset:0; background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px); background-size:40px 40px; pointer-events:none; z-index:0; }
+    .screen { position:relative; z-index:1; width:100%; max-width:520px; display:none; flex-direction:column; gap:16px; animation:fadeUp 0.45s ease both; }
+    .screen.active { display:flex; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+    .header { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); }
+    .brand { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:500; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; }
+    .brand-dot { width:7px; height:7px; border-radius:50%; background:var(--accent); box-shadow:0 0 8px var(--accent); }
+    .level-badge { font-family:var(--mono); font-size:11px; padding:4px 10px; border-radius:100px; border:1px solid var(--border); color:var(--accent); letter-spacing:.1em; }
+    .welcome-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:32px 24px; text-align:center; display:flex; flex-direction:column; gap:20px; }
+    .welcome-icon { font-size:48px; line-height:1; }
+    .welcome-title { font-size:24px; font-weight:600; }
+    .welcome-sub { font-size:14px; color:var(--muted); line-height:1.5; }
+    .input-group { display:flex; flex-direction:column; gap:8px; text-align:left; }
+    .input-label { font-size:11px; font-weight:500; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; }
+    .name-input { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); padding:14px 18px; color:var(--text); font-family:var(--font); font-size:16px; outline:none; transition:border-color .2s; }
+    .name-input:focus { border-color:var(--accent); }
+    .name-input::placeholder { color:var(--muted); }
+    .btn-start { width:100%; background:var(--accent); color:#000; border:none; border-radius:var(--radius); padding:15px; font-family:var(--font); font-size:15px; font-weight:600; cursor:pointer; transition:all .2s; }
+    .btn-start:hover { transform:scale(1.02); box-shadow:0 0 20px rgba(255,215,0,.25); }
+    .btn-start:disabled { opacity:.4; cursor:not-allowed; transform:none; box-shadow:none; }
+    .btn-ranking-link { background:none; border:1px solid var(--border); border-radius:var(--radius); padding:12px; color:var(--muted); font-family:var(--font); font-size:13px; cursor:pointer; transition:all .2s; }
+    .btn-ranking-link:hover { border-color:var(--accent2); color:var(--accent2); }
+    .stats { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 18px; display:flex; flex-direction:column; gap:4px; }
+    .stat-label { font-size:11px; font-weight:500; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; }
+    .stat-value { font-family:var(--mono); font-size:26px; font-weight:500; color:var(--text); line-height:1; }
+    #stat-tiempo .stat-value { color:var(--accent); transition:color .3s; }
+    #stat-tiempo.warning .stat-value { color:var(--danger); }
+    .player-tag { display:flex; align-items:center; gap:8px; padding:10px 16px; background:var(--surface); border:1px solid var(--border); border-radius:100px; font-size:13px; color:var(--muted); align-self:center; }
+    .player-tag strong { color:var(--accent); font-weight:500; }
+    .timer-bar-wrap { background:var(--surface); border:1px solid var(--border); border-radius:100px; height:6px; overflow:hidden; }
+    .timer-bar { height:100%; width:100%; background:var(--accent); border-radius:100px; transition:width 1s linear,background .3s; }
+    .timer-bar.warning { background:var(--danger); }
+    .progress-dots { display:flex; gap:6px; justify-content:center; flex-wrap:wrap; }
+    .dot { width:8px; height:8px; border-radius:50%; background:var(--border); transition:background .3s; }
+    .dot.done { background:var(--accent); }
+    .dot.current { background:var(--accent2); box-shadow:0 0 6px var(--accent2); }
+    .question-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:28px 24px; text-align:center; }
+    .question-counter { font-size:11px; font-weight:500; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; margin-bottom:12px; }
+    .question-text { font-size:clamp(14px,4vw,18px); font-weight:400; line-height:1.5; }
+    .vf-badge { display:inline-block; margin-bottom:12px; font-size:10px; font-family:var(--mono); padding:3px 10px; border-radius:100px; border:1px solid var(--border); color:var(--muted); letter-spacing:.1em; }
+    .options { display:flex; flex-direction:column; gap:10px; }
+    .option-btn { width:100%; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px 20px; color:var(--text); font-family:var(--font); font-size:16px; font-weight:600; cursor:pointer; text-align:center; transition:all .18s ease; position:relative; overflow:hidden; letter-spacing:.05em; }
+    .option-btn::before { content:''; position:absolute; inset:0; background:var(--accent); opacity:0; transition:opacity .18s; }
+    .option-btn:hover:not(:disabled) { border-color:var(--accent); transform:scale(1.02); }
+    .option-btn:hover:not(:disabled)::before { opacity:.04; }
+    .option-btn:active:not(:disabled) { transform:scale(.97); }
+    .option-btn.correct { border-color:var(--success); background:rgba(90,255,140,.08); color:var(--success); }
+    .option-btn.wrong { border-color:var(--danger); background:rgba(255,90,90,.08); color:var(--danger); }
+    .end-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:32px 24px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:12px; }
+    .end-icon { font-size:56px; line-height:1; }
+    .end-player { font-size:14px; color:var(--muted); }
+    .end-player span { color:var(--accent); font-weight:600; }
+    .end-score { font-family:var(--mono); font-size:64px; font-weight:500; color:var(--accent); line-height:1; }
+    .end-label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; }
+    .end-position { margin-top:4px; padding:8px 20px; border-radius:100px; border:1px solid var(--border); font-family:var(--mono); font-size:13px; color:var(--accent2); }
+    .end-actions { display:flex; flex-direction:column; gap:10px; width:100%; }
+    .btn-primary { background:var(--accent); color:#000; border:none; border-radius:var(--radius); padding:14px; font-family:var(--font); font-size:15px; font-weight:600; cursor:pointer; transition:all .2s; }
+    .btn-primary:hover { transform:scale(1.02); box-shadow:0 0 20px rgba(255,215,0,.25); }
+    .btn-secondary { background:none; border:1px solid var(--border); border-radius:var(--radius); padding:13px; color:var(--text); font-family:var(--font); font-size:14px; cursor:pointer; transition:all .2s; }
+    .btn-secondary:hover { border-color:var(--accent2); color:var(--accent2); }
+    .ranking-header { display:flex; align-items:center; justify-content:space-between; }
+    .ranking-title { font-size:20px; font-weight:600; }
+    .ranking-sub { font-size:12px; color:var(--muted); }
+    .btn-back { background:none; border:1px solid var(--border); border-radius:100px; padding:6px 14px; color:var(--muted); font-family:var(--font); font-size:12px; cursor:pointer; transition:all .2s; }
+    .btn-back:hover { border-color:var(--text); color:var(--text); }
+    .ranking-list { display:flex; flex-direction:column; gap:8px; max-height:60vh; overflow-y:auto; }
+    .rank-row { display:flex; align-items:center; gap:14px; padding:14px 18px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); }
+    .rank-row.me { border-color:var(--accent); background:rgba(255,215,0,.03); }
+    .rank-pos { font-family:var(--mono); font-size:13px; color:var(--muted); min-width:28px; text-align:center; }
+    .rank-pos.gold{color:#ffd700;font-weight:600} .rank-pos.silver{color:#c0c0c0;font-weight:600} .rank-pos.bronze{color:#cd7f32;font-weight:600}
+    .rank-name { flex:1; font-size:15px; }
+    .rank-name.me { color:var(--accent); font-weight:500; }
+    .rank-score { font-family:var(--mono); font-size:14px; color:var(--muted); }
+    .rank-score.me { color:var(--accent); }
+    .ranking-empty { text-align:center; padding:40px 20px; color:var(--muted); font-size:14px; }
+    .feedback { position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--surface2); border:1px solid var(--border); border-radius:100px; padding:10px 22px; font-size:14px; font-weight:500; opacity:0; transition:all .3s ease; pointer-events:none; white-space:nowrap; z-index:100; }
+    .feedback.show { opacity:1; transform:translateX(-50%) translateY(0); }
+    .feedback.ok{border-color:var(--success);color:var(--success)} .feedback.bad{border-color:var(--danger);color:var(--danger)}
+
+    .end-nota { font-family:var(--mono); font-size:48px; font-weight:600; color:var(--accent); line-height:1; }
+    .end-nota-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; }
+    .nota-bar-wrap { width:100%; background:var(--surface2); border-radius:100px; height:10px; overflow:hidden; border:1px solid var(--border); }
+    .nota-bar { height:100%; border-radius:100px; background:var(--accent); transition:width 1s ease; }
   </style>
 </head>
 <body>
 
 <div class="screen active" id="screen-login">
   <div class="header"><div class="brand"><div class="brand-dot"></div>QuizStation</div><div class="level-badge">⚡ FINAL</div></div>
-  <div class="final-banner"><div class="final-title">🏆 Ronda Final</div><div class="final-sub">Solo 8 segundos · Máxima dificultad</div></div>
   <div class="welcome-card">
-    <div class="welcome-icon">👑</div>
-    <div><div class="welcome-title">¡Es el momento!</div><div class="welcome-sub" style="margin-top:6px">Demuestra que eres el mejor. Ingresa tu nombre y lucha por el primer lugar</div></div>
+    <div class="welcome-icon">📋</div>
+    <div><div class="welcome-title">🏆 Ronda Final</div><div class="welcome-sub" style="margin-top:6px">Teorías y Contexto PDA — Solo 12 segundos<br>Responde Verdadero o Falso</div></div>
     <div class="input-group">
       <label class="input-label" for="nombre-input">Tu nombre</label>
-      <input class="name-input" id="nombre-input" type="text" placeholder="Ej: Carlos Ruiz" maxlength="20" autocomplete="off"/>
+      <input class="name-input" id="nombre-input" type="text" placeholder="Ej: María García" maxlength="20" autocomplete="off"/>
     </div>
-    <button class="btn-start" id="btn-start" onclick="empezarJuego()" disabled>¡Jugar ahora! →</button>
+    <button class="btn-start" id="btn-start" onclick="empezarJuego()" disabled>Empezar →</button>
     <button class="btn-ranking-link" onclick="mostrarRanking('login')">Ver ranking 🏆</button>
   </div>
 </div>
@@ -123,13 +121,14 @@
   <div class="player-tag">Jugando: <strong id="player-name-tag">—</strong></div>
   <div class="stats">
     <div class="stat-card"><span class="stat-label">Puntos</span><span class="stat-value" id="puntos-display">0</span></div>
-    <div class="stat-card" id="stat-tiempo"><span class="stat-label">Tiempo</span><span class="stat-value" id="tiempo-display">8</span></div>
+    <div class="stat-card" id="stat-tiempo"><span class="stat-label">Tiempo</span><span class="stat-value" id="tiempo-display">20</span></div>
   </div>
   <div class="timer-bar-wrap"><div class="timer-bar" id="timer-bar"></div></div>
   <div class="progress-dots" id="progress-dots"></div>
   <div class="question-card">
+    <div class="vf-badge">VERDADERO / FALSO</div>
     <div class="question-counter" id="q-counter">Pregunta 1 de 10</div>
-    <div class="question-text" id="pregunta-text">Cargando...</div>
+    <div class="question-text" id="pregunta-text"></div>
   </div>
   <div class="options" id="opciones"></div>
 </div>
@@ -137,16 +136,17 @@
 <div class="screen" id="screen-end">
   <div class="header"><div class="brand"><div class="brand-dot"></div>QuizStation</div><div class="level-badge">⚡ FINAL</div></div>
   <div class="end-card">
-    <div class="end-icon" id="end-icon">🏆</div>
-    <div class="end-title">¡QuizStation Completado!</div>
+    <div class="end-icon" id="end-icon">🎯</div>
     <div class="end-player">Resultado de <span id="end-name">—</span></div>
     <div class="end-score" id="end-score">0</div>
     <div class="end-label">puntos obtenidos</div>
     <div class="end-position" id="end-position"># en el ranking</div>
-    <div class="end-rang" id="end-rang">— RANGO —</div>
+    <div class=end-nota-label>Nota obtenida</div>
+    <div class=end-nota id=end-nota>0.0</div>
+    <div class=nota-bar-wrap><div class=nota-bar id=nota-bar style=width:0%></div></div>
   </div>
   <div class="end-actions">
-    <button class="btn-primary" onclick="mostrarRanking('end')">Ver ranking completo 🏆</button>
+    <button class="btn-primary" onclick="mostrarRanking('end')">Ver ranking 🏆</button>
     <button class="btn-secondary" onclick="volverLogin()">Jugar de nuevo</button>
   </div>
 </div>
@@ -154,7 +154,7 @@
 <div class="screen" id="screen-ranking">
   <div class="header"><div class="brand"><div class="brand-dot"></div>QuizStation</div><div class="level-badge">⚡ FINAL</div></div>
   <div class="ranking-header">
-    <div><div class="ranking-title">🏆 Ranking Final</div><div class="ranking-sub" id="ranking-sub">Top jugadores</div></div>
+    <div><div class="ranking-title">🏆 Ranking</div><div class="ranking-sub" id="ranking-sub">Top jugadores</div></div>
     <button class="btn-back" onclick="volverDesdeRanking()">← Volver</button>
   </div>
   <div class="ranking-list" id="ranking-list"><div class="ranking-empty">Aún no hay jugadores</div></div>
@@ -163,24 +163,30 @@
 <div class="feedback" id="feedback"></div>
 
 <script>
-const TIEMPO_MAX=8,TOTAL_PREGUNTAS=10,LETRAS=['A','B','C'];
-const STORAGE_KEY='quizstation_final_ranking';
-const RANGOS=[{min:90,label:'🥇 MAESTRO SUPREMO'},{min:70,label:'🥈 EXPERTO'},{min:50,label:'🥉 COMPETENTE'},{min:0,label:'📚 SIGUE ESTUDIANDO'}];
-let nombreJugador='',preguntas,actual,puntos,tiempo,intervalo,pantallaAnterior='login';
+const TIEMPO_MAX=12, TOTAL_PREGUNTAS=10, STORAGE_KEY='quizstation_final_ranking';
+let nombreJugador='', preguntas, actual, puntos, tiempo, intervalo, pantallaAnterior='login';
 
 const bancoPreguntas=[
-  {pregunta:"¿Raíz cuadrada de 144?",                          opciones:["11","12","14"],                      correcta:1},
-  {pregunta:"¿Año inicio de la Primera Guerra Mundial?",        opciones:["1912","1914","1916"],                correcta:1},
-  {pregunta:"¿Quién formuló la teoría de la relatividad?",      opciones:["Newton","Bohr","Einstein"],          correcta:2},
-  {pregunta:"¿Cuántos países forman América del Sur?",          opciones:["10","12","14"],                      correcta:1},
-  {pregunta:"¿Símbolo químico del sodio?",                      opciones:["So","Sd","Na"],                     correcta:2},
-  {pregunta:"¿Río más largo del mundo?",                        opciones:["Amazonas","Nilo","Yangtsé"],         correcta:0},
-  {pregunta:"¿Año publicación Origen de las Especies?",         opciones:["1849","1859","1869"],                correcta:1},
-  {pregunta:"¿Cuántos lados tiene un dodecágono?",              opciones:["10","11","12"],                     correcta:2},
-  {pregunta:"¿Qué país inventó la pólvora?",                    opciones:["India","China","Arabia"],            correcta:1},
-  {pregunta:"¿Fórmula del agua?",                               opciones:["HO2","H2O","H3O"],                  correcta:1},
-  {pregunta:"¿Husos horarios de China oficialmente?",           opciones:["1","3","5"],                        correcta:0},
-  {pregunta:"¿Primer presidente de EE.UU.?",                    opciones:["Lincoln","Jefferson","Washington"],  correcta:2},
+  {p:"El desarrollo endógeno promueve el aprovechamiento del capital social local para especializar los territorios.",r:"V"},
+  {p:"La Nueva Geografía Económica sugiere que la ubicación geográfica no influye en el comercio internacional.",r:"F"},
+  {p:"El impacto económico del aislamiento por COVID-19 fue heterogéneo entre las regiones de Colombia según el Banco de la República.",r:"V"},
+  {p:"Los Programas de Desarrollo con Enfoque Territorial (PDET) solo se aplican en ciudades con PIB alto.",r:"F"},
+  {p:"La planificación para el desarrollo en América Latina (CEPAL) incorpora enfoques de prospectiva.",r:"V"},
+  {p:"La brecha entre la región Andina y regiones periféricas (Chocó/Guajira) es una desigualdad estructural analizada en el curso.",r:"V"},
+  {p:"Paul Krugman es referenciado en el curso para explicar la relación entre geografía y competitividad.",r:"V"},
+  {p:"La teoría de 'polos de crecimiento' de Perroux es una de las bases teóricas del desarrollo regional mencionadas.",r:"V"},
+  {p:"Raul Prebisch argumentaba que el subdesarrollo se debía únicamente a la falta de inversión extranjera directa.",r:"F"},
+  {p:"El diagnóstico regional del PDD Tolima identifica que la pobreza rural es más del doble del promedio departamental.",r:"V"},
+  {p:"Los clústeres empresariales son aplicaciones prácticas de economías de aglomeración.",r:"V"},
+  {p:"El Plan de Desarrollo Tolima 2024-2027 se titula 'Tolima Próspero y Sostenible'.",r:"F"},
+  {p:"La especialización de las subregiones es un pilar fundamental de la hoja de ruta del Tolima hacia 2027.",r:"V"},
+  {p:"La 'planeación por resultados' exige la articulación de instrumentos normativos, técnicos y financieros.",r:"V"},
+  {p:"Las Corporaciones Autónomas Regionales (como Cortolima) no tienen voz en la aprobación de los planes de desarrollo.",r:"F"},
+  {p:"El curso analiza modelos de desarrollo regional como el propuesto por Léa Manet en 2014.",r:"V"},
+  {p:"La planeación económica regional busca un equilibrio técnico-político para orientar recursos hacia metas de equidad.",r:"V"},
+  {p:"La técnica de análisis regional TAREA (versión 2.0) es un recurso oficial del cronograma para ejercicios computacionales.",r:"V"},
+  {p:"El curso utiliza estrategias de aprendizaje basado en proyectos, retos y simulaciones.",r:"V"},
+  {p:"El PDA establece que las lecturas en inglés son opcionales y no se evaluarán en el examen final.",r:"F"},
 ];
 
 function leerRanking(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||[];}catch{return[];}}
@@ -195,30 +201,43 @@ function shuffle(arr){return[...arr].sort(()=>Math.random()-.5);}
 function iniciarJuego(){preguntas=shuffle(bancoPreguntas).slice(0,TOTAL_PREGUNTAS);actual=0;puntos=0;renderDots();cargarPregunta();}
 function renderDots(){const cont=document.getElementById('progress-dots');cont.innerHTML='';preguntas.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' current':'');d.id='dot-'+i;cont.appendChild(d);});}
 function updateDots(){preguntas.forEach((_,i)=>{const d=document.getElementById('dot-'+i);d.className=i<actual?'dot done':i===actual?'dot current':'dot';});}
-function cargarPregunta(){clearInterval(intervalo);tiempo=TIEMPO_MAX;updateUI();updateDots();const q=preguntas[actual];document.getElementById('q-counter').textContent=`Pregunta ${actual+1} de ${TOTAL_PREGUNTAS}`;document.getElementById('pregunta-text').textContent=q.pregunta;const cont=document.getElementById('opciones');cont.innerHTML='';q.pregunta&&q.opciones.forEach((op,i)=>{const btn=document.createElement('button');btn.className='option-btn';btn.innerHTML=`<span class="opt-letter">${LETRAS[i]}</span><span class="opt-text">${op}</span>`;btn.onclick=()=>responder(i);cont.appendChild(btn);});iniciarTiempo();}
-function updateUI(){document.getElementById('puntos-display').textContent=puntos;document.getElementById('tiempo-display').textContent=tiempo;const pct=(tiempo/TIEMPO_MAX)*100;const bar=document.getElementById('timer-bar');bar.style.width=pct+'%';const warn=tiempo<=2;bar.classList.toggle('warning',warn);document.getElementById('stat-tiempo').classList.toggle('warning',warn);}
-function iniciarTiempo(){intervalo=setInterval(()=>{tiempo--;updateUI();if(tiempo<=0){clearInterval(intervalo);mostrarFeedback('⏱ Tiempo agotado','bad');deshabilitarOpciones();setTimeout(siguiente,1200);}},1000);}
-function responder(idx){clearInterval(intervalo);const q=preguntas[actual];const btns=document.querySelectorAll('.option-btn');btns[q.correcta].classList.add('correct');if(idx===q.correcta){const bonus=Math.ceil(tiempo/TIEMPO_MAX*20);puntos+=10+bonus;mostrarFeedback(`✓ Correcto +${10+bonus}`,'ok');}else{btns[idx].classList.add('wrong');mostrarFeedback('✗ Incorrecto','bad');}deshabilitarOpciones();updateUI();setTimeout(siguiente,1200);}
+function cargarPregunta(){
+  clearInterval(intervalo);tiempo=TIEMPO_MAX;updateUI();updateDots();
+  const q=preguntas[actual];
+  document.getElementById('q-counter').textContent=`Pregunta ${actual+1} de ${TOTAL_PREGUNTAS}`;
+  document.getElementById('pregunta-text').textContent=q.p;
+  const cont=document.getElementById('opciones');cont.innerHTML='';
+  ['Verdadero','Falso'].forEach(op=>{
+    const btn=document.createElement('button');btn.className='option-btn';
+    btn.textContent=op==='Verdadero'?'✓  Verdadero':'✗  Falso';
+    btn.onclick=()=>responder(op==='Verdadero'?'V':'F');cont.appendChild(btn);
+  });
+  iniciarTiempo();
+}
+function updateUI(){document.getElementById('puntos-display').textContent=puntos;document.getElementById('tiempo-display').textContent=tiempo;const pct=(tiempo/TIEMPO_MAX)*100;const bar=document.getElementById('timer-bar');bar.style.width=pct+'%';const warn=tiempo<=6;bar.classList.toggle('warning',warn);document.getElementById('stat-tiempo').classList.toggle('warning',warn);}
+function iniciarTiempo(){intervalo=setInterval(()=>{tiempo--;updateUI();if(tiempo<=0){clearInterval(intervalo);mostrarFeedback('⏱ Tiempo agotado','bad');deshabilitarOpciones();setTimeout(siguiente,1400);}},1000);}
+function responder(resp){
+  clearInterval(intervalo);
+  const q=preguntas[actual];const btns=document.querySelectorAll('.option-btn');
+  btns.forEach(b=>{if(b.textContent.includes('Verdadero')&&q.r==='V')b.classList.add('correct');else if(b.textContent.includes('Falso')&&q.r==='F')b.classList.add('correct');else if((b.textContent.includes('Verdadero')&&resp==='V'&&q.r!=='V')||(b.textContent.includes('Falso')&&resp==='F'&&q.r!=='F'))b.classList.add('wrong');});
+  if(resp===q.r){const bonus=Math.ceil(tiempo/TIEMPO_MAX*10);puntos+=10+bonus;mostrarFeedback(`✓ Correcto +${10+bonus}`,'ok');}
+  else mostrarFeedback('✗ Incorrecto','bad');
+  deshabilitarOpciones();updateUI();setTimeout(siguiente,1400);
+}
 function deshabilitarOpciones(){document.querySelectorAll('.option-btn').forEach(b=>b.disabled=true);}
 function siguiente(){actual++;if(actual>=TOTAL_PREGUNTAS)terminar();else cargarPregunta();}
-function terminar(){
-  clearInterval(intervalo);
-  guardarEnRanking(nombreJugador,puntos);
-  const pos=obtenerPosicion(nombreJugador,puntos);
-  const maxPts=TOTAL_PREGUNTAS*30;
-  const pct=(puntos/maxPts)*100;
-  document.getElementById('end-name').textContent=nombreJugador;
-  document.getElementById('end-score').textContent=puntos;
-  document.getElementById('end-icon').textContent=pct>=80?'🏆':pct>=50?'🎯':'💪';
-  const medals=['🥇','🥈','🥉'];
-  document.getElementById('end-position').textContent=pos<=3?`${medals[pos-1]} Posición #${pos}`:`Posición #${pos} en el ranking`;
-  const rango=RANGOS.find(r=>pct>=r.min);
-  document.getElementById('end-rang').textContent=rango.label;
-  mostrarPantalla('screen-end');
+
+function calcularNota(puntos){
+  if(puntos>=160) return 5.0;
+  if(puntos>=120) return 4.0;
+  if(puntos>=80)  return 3.0;
+  if(puntos>=40)  return 2.0;
+  return 1.0;
 }
+function terminar(){clearInterval(intervalo);guardarEnRanking(nombreJugador,puntos);const pos=obtenerPosicion(nombreJugador,puntos);const pct=puntos/(TOTAL_PREGUNTAS*20)*100;document.getElementById('end-name').textContent=nombreJugador;document.getElementById('end-score').textContent=puntos;document.getElementById('end-icon').textContent=pct>=80?'🏆':pct>=50?'🎯':'💪';const medals=['🥇','🥈','🥉'];document.getElementById('end-position').textContent=pos<=3?`${medals[pos-1]} Posición #${pos}`:`Posición #${pos} en el ranking`;const nota=calcularNota(puntos);document.getElementById('end-nota').textContent=nota.toFixed(1);document.getElementById('nota-bar').style.width=((nota/5)*100)+'%';mostrarPantalla('screen-end');}
 function mostrarRanking(desde){pantallaAnterior=desde==='end'?'screen-end':'screen-login';renderRanking();mostrarPantalla('screen-ranking');}
 function volverDesdeRanking(){mostrarPantalla(pantallaAnterior);}
-function renderRanking(){const lista=leerRanking();const cont=document.getElementById('ranking-list');document.getElementById('ranking-sub').textContent=lista.length>0?`${lista.length} jugador${lista.length!==1?'es':''}`:'Aún no hay jugadores';if(!lista.length){cont.innerHTML='<div class="ranking-empty">Sé el primero en jugar 👑</div>';return;}const medals=['🥇','🥈','🥉'],posCls=['gold','silver','bronze'];cont.innerHTML=lista.slice(0,20).map((entry,i)=>{const esYo=entry.nombre===nombreJugador&&entry.puntaje===puntos;return`<div class="rank-row ${esYo?'me':''}"><div class="rank-pos ${i<3?posCls[i]:''}">${i<3?medals[i]:'#'+(i+1)}</div><div class="rank-name ${esYo?'me':''}">${entry.nombre}${esYo?' ← tú':''}</div><div class="rank-score ${esYo?'me':''}">${entry.puntaje} pts</div></div>`;}).join('');}
+function renderRanking(){const lista=leerRanking();const cont=document.getElementById('ranking-list');document.getElementById('ranking-sub').textContent=lista.length>0?`${lista.length} jugador${lista.length!==1?'es':''}`:'Aún no hay jugadores';if(!lista.length){cont.innerHTML='<div class="ranking-empty">Sé el primero en jugar 🎮</div>';return;}const medals=['🥇','🥈','🥉'],posCls=['gold','silver','bronze'];cont.innerHTML=lista.slice(0,20).map((entry,i)=>{const esYo=entry.nombre===nombreJugador&&entry.puntaje===puntos;return`<div class="rank-row ${esYo?'me':''}"><div class="rank-pos ${i<3?posCls[i]:''}">${i<3?medals[i]:'#'+(i+1)}</div><div class="rank-name ${esYo?'me':''}">${entry.nombre}${esYo?' ← tú':''}</div><div class="rank-score ${esYo?'me':''}">${entry.puntaje} pts</div></div>`;}).join('');}
 function mostrarFeedback(msg,tipo){const el=document.getElementById('feedback');el.textContent=msg;el.className='feedback show '+tipo;setTimeout(()=>el.className='feedback',1500);}
 </script>
 </body>
